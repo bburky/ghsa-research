@@ -10,7 +10,7 @@ sql:
 
 # Untracked repository GHSA advisories: Chainguard Wolfi
 
-_Note: The issue of missing GHSA CVE data is _not_ specific to Chainguard Wolfi or any other linux distribution. This is mostly a result of some hard to use GitHub APIs not exposing all GHSA data in bulk._
+_Note: The broader issue of missing GHSA CVE data is _not_ specific to Chainguard Wolfi or any other linux distribution. This is mostly a result of some hard to use GitHub APIs not exposing all GHSA data in bulk. However some advisories may be listed here for other reasons such as incorrect detection of dependencies._
 
 TODO: do this same analysis against packages from other linux distros
 
