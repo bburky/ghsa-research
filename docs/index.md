@@ -10,7 +10,7 @@ sql:
 
 # Untracked repository GHSA advisories: Chainguard Wolfi
 
-_Note: The broader issue of missing GHSA CVE data is _not_ specific to Chainguard Wolfi or any other linux distribution. This is mostly a result of some hard to use GitHub APIs not exposing all GHSA data in bulk. However some advisories may be listed here for other reasons such as incorrect detection of dependencies._
+_Note: The broader issue of missing GHSA CVE data is **not** specific to Chainguard Wolfi or any other linux distribution. This is mostly a result of some hard to use GitHub APIs not exposing all GHSA data in bulk. However some advisories may be listed here for other reasons such as incorrect detection of dependencies._
 
 TODO: do this same analysis against packages from other linux distros
 
@@ -30,7 +30,36 @@ Which mentions:
 
 Many of the missing CVEs are also missing from Grype (as rich GHSA GitHub data at least, some of them exist as CVEs in the NVD data but are unlinked to any packages or GitHub repos).
 
-Grype (and many, many, other tools) use GitHub _global security advisory_ data from https://github.com/advisories (often downloaded in bulk from its [git repo](https://github.com/github/advisory-database) or using its [GraphQL API](https://docs.github.com/en/rest/security-advisories/global-advisories?apiVersion=2022-11-28)). This data does NOT include _repository_ advisories, which are only available via [a specific REST API](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28), which must be fetched individually per-repo. If advisories do not list packages in a [supported ecosystem](https://github.com/github/advisory-database?tab=readme-ov-file#supported-ecosystems) (golang, npm, etc), they typically do not become a "GitHub reviewed" advisory with rich data linking to the affected package. NVD CVE data _is_ included, but this includes none of the rich data from the repository advisory, there isn't even any machine readable data linking back to the source GitHub repo, and the data is incomplete with many repository advisory CVEs missing entirely.
+Grype (and many, many, other tools) use GitHub _global security advisory_ data from https://github.com/advisories (often downloaded in bulk from its [git repo](https://github.com/github/advisory-database) or using its [GraphQL API](https://docs.github.com/en/rest/security-advisories/global-advisories?apiVersion=2022-11-28)). This data does NOT include _repository_ advisories, which are only available via [a specific REST API](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28), which must be fetched individually per-repo. If advisories do not list packages in a [supported ecosystem](https://github.com/github/advisory-database?tab=readme-ov-file#supported-ecosystems) (golang, npm, etc), they typically do not become a "GitHub reviewed" global advisory with rich data linking to the affected package. NVD CVE data _is_ included, but this includes none of the rich data from the repository advisory, there isn't even any machine readable data linking back to the source GitHub repo, and the data is incomplete with many repository advisory CVEs missing entirely.
+Grype (and many, many, other tools) use GitHub _global security advisory_ data from https://github.com/advisories (often downloaded in bulk from its [git repo](https://github.com/github/advisory-database) or using its [GraphQL API](https://docs.github.com/en/rest/security-advisories/global-advisories?apiVersion=2022-11-28)). This data does NOT include _repository_ advisories, which are only available via [a specific REST API](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28), which must be fetched individually per-repo. If advisories do not list packages in a [supported ecosystem](https://github.com/github/advisory-database?tab=readme-ov-file#supported-ecosystems) (golang, npm, etc), they typically do not become a "GitHub reviewed" global advisory linking to the affected package. NVD CVE data _is_ included in the global, but this includes none of the rich data from the repository advisory, there isn't even any machine readable data linking back to the source GitHub repo, and the data is incomplete with many repository advisory CVEs missing entirely.
+
+### Findings
+
+A couple selected findings from the data:
+
+#### Missing advisory data
+
+For most of the CVEs, Chainguard has already updated the software to the newest version, they just failed to list an advisory for it. This is great if users perhaps use a `latest` tag and always update frequently. However, many users wont't always update to the newest version unless an advisory against the old package is published.
+
+An example of a missing advisory against a Wolfi package:
+
+- Wolfi did previously package Helm 3.14.1: https://github.com/wolfi-dev/os/commit/0b4859e5c03f0f424276e6cee8ab4db4410fbe24
+- CVE-2024-26147, GHSA-r53h-jv2g-vpx6 advisory affects 3.14.1: https://github.com/advisories/GHSA-r53h-jv2g-vpx6
+- Advisory is missing from Wolfi advisories: https://github.com/wolfi-dev/advisories/blob/main/helm.advisories.yaml
+
+I don't know why Grype didn't detect this CVE against Helm, it's not a non-ecosystem package: the advisory lists a golang package name. Weirdly this CVE does appear in Wolfi advisories against _other_ packages dependent on Helm.
+
+#### Unpatched package
+
+I did notice a significant unpatched CVE in Minio:
+
+- Minio Wolfi package was RELEASE.2023-10-25T06-33-25Z https://github.com/wolfi-dev/os/blob/1a1133adf240f10dd716f8494b982bd69b4484e2/minio.yaml#L5
+- CVE-2024-24747 GHSA-xx8w-mq23-29g4 advisory affecting 20240131185645 and older https://github.com/advisories/GHSA-xx8w-mq23-29g4
+- Grype does detect the Minio golang module and version in Wolfi packages, but Minio's strange version numbering probably prevents detecting that the old version is affected.
+- Auto-updates [were disabled](https://github.com/wolfi-dev/os/blob/1a1133adf240f10dd716f8494b982bd69b4484e2/minio.yaml#L38-L39) on the Minio Wolfi package
+- UPDATE: This has been fixed. [Mino was updated to 20240406](https://github.com/wolfi-dev/os/pull/16564).
+
+### All data
 
 ```sql echo id=missing_advisories
 -- TODO: make this code cleaner. Probably use another subquery to avoid repeated unnest()
