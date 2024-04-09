@@ -10,7 +10,7 @@ sql:
 
 # Untracked repository GHSA advisories: Chainguard Wolfi
 
-TODO: these issues are _not_ specific to Chainguard Wolfi at all, and are mostly a result of some hard to use GitHub APIs not exposing all GHSA data in bulk
+_Note: The issue of missing GHSA CVE data is _not_ specific to Chainguard Wolfi or any other linux distribution. This is mostly a result of some hard to use GitHub APIs not exposing all GHSA data in bulk._
 
 TODO: do this same analysis against packages from other linux distros
 
@@ -30,7 +30,7 @@ Which mentions:
 
 Many of the missing CVEs are also missing from Grype (as rich GHSA GitHub data at least, some of them exist as CVEs in the NVD data but are unlinked to any packages or GitHub repos).
 
-Grype (and many, many, other tools) use GitHub _global security advisory_ data from https://github.com/advisories (often downloaded in bulk from its [git repo](https://github.com/github/advisory-database) or using its [GraphQL API](https://docs.github.com/en/rest/security-advisories/global-advisories?apiVersion=2022-11-28)). This data does NOT include _repository_ advisories, which are only available via [a specific REST API](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28), which must be fetched individually per-repo. If advisories do not list an packages do not have a [supported ecosystem](https://github.com/github/advisory-database?tab=readme-ov-file#supported-ecosystems) (golang, npm, etc), they do not become a "GitHub reviewed" advisory with rich data linking to the affected package. NVD CVE data _is_ included, but this includes none of the rich data from the repository advisory, there isn't even any machine readable data linking back to the source GitHub repo, and the data is incomplete with many repository advisory CVEs missing entirely.
+Grype (and many, many, other tools) use GitHub _global security advisory_ data from https://github.com/advisories (often downloaded in bulk from its [git repo](https://github.com/github/advisory-database) or using its [GraphQL API](https://docs.github.com/en/rest/security-advisories/global-advisories?apiVersion=2022-11-28)). This data does NOT include _repository_ advisories, which are only available via [a specific REST API](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28), which must be fetched individually per-repo. If advisories do not list packages in a [supported ecosystem](https://github.com/github/advisory-database?tab=readme-ov-file#supported-ecosystems) (golang, npm, etc), they typically do not become a "GitHub reviewed" advisory with rich data linking to the affected package. NVD CVE data _is_ included, but this includes none of the rich data from the repository advisory, there isn't even any machine readable data linking back to the source GitHub repo, and the data is incomplete with many repository advisory CVEs missing entirely.
 
 ```sql echo id=missing_advisories
 -- TODO: make this code cleaner. Probably use another subquery to avoid repeated unnest()

@@ -1,7 +1,10 @@
 // See https://observablehq.com/framework/config for documentation.
+
 export default {
   // The project’s title; used in the sidebar and webpage titles.
   title: "GHSA Research",
+
+  header: "<i style='position: relative; z-index: 99; float: right'><a href='https://github.com/bburky/ghsa-research'>View source ⬈</a></i>",
 
   // The pages and sections in the sidebar. If you don’t specify this option,
   // all pages will be listed in alphabetical order. Listing pages explicitly
