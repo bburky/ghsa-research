@@ -11,6 +11,7 @@ sql:
 # Untracked repository GHSA advisories: Chainguard Wolfi
 
 TODO: these issues are _not_ specific to Chainguard Wolfi at all, and are mostly a result of some hard to use GitHub APIs not exposing all GHSA data in bulk
+
 TODO: do this same analysis against packages from other linux distros
 
 The GHSA repository advisories listed below have been found on the upstream GitHub repository, but are not listed Chainguard's Wolfi `*.advisories.yaml` file.
@@ -71,7 +72,13 @@ for (const a of missing_advisories) {
   const wolfi_advisory_link = `https://github.com/wolfi-dev/advisories/blob/main/${a.package}.advisories.yaml`;
   display(
     html`<tr>
-      <td><a href=${wolfi_package_link}>${a.package}</a> <small><i>${a.version}</i></small> <span style="margin: auto 1em; font-variant: small-caps"><a href=${wolfi_advisory_link}>advisories</a></span></td>
+      <td>
+        <a href=${wolfi_package_link}>${a.package}</a>
+        <small><i>${a.version}</i></small>
+        <span style="margin: auto 1em; font-variant: small-caps"
+          ><a href=${wolfi_advisory_link}>advisories</a>
+        </span>
+      </td>
       <td><a href=${repo_link}>${a.repo}</a></td>
       <td><a href=${ghsa_link}>${a.ghsa}</a></td>
       <td>${a.cve}</td>
@@ -81,8 +88,9 @@ for (const a of missing_advisories) {
 ```
 
 ```js
+// Output source code for data loaders
+// https://github.com/observablehq/framework/discussions/842#discussioncomment-8502197
 import hljs from "npm:highlight.js";
-
 const files = [
   FileAttachment("./data/wolfi-advisories.json.sh"),
   FileAttachment("./data/wolfi-packages.json.sh"),
