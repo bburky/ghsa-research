@@ -28,8 +28,9 @@ jobs:
 
       - name: Build
         run: npm run build
-        # Needed to query GH API
         env:
+          # Needed to query GitHub API with authenticated access (higher rate limit)
+          # All data is publicly accessible, so contents:read permissions are sufficient
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifact

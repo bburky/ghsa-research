@@ -1,5 +1,5 @@
 ---
-title: "Untracked repository GHSA advisories: Wolfi"
+title: "Untracked repository GHSA advisories: Chainguard Wolfi"
 theme: wide
 toc: false
 sql:
@@ -8,9 +8,9 @@ sql:
   ghsa_advisories: "./data/github-advisories.json"
 ---
 
-# Untracked repository GHSA advisories: Wolfi
+# Untracked repository GHSA advisories: Chainguard Wolfi
 
-TODO: these issues are _not_ specific to Wolfi at all, and mostly a result of some hard to use GitHub APIs.
+TODO: these issues are _not_ specific to Chainguard Wolfi at all, and are mostly a result of some hard to use GitHub APIs not exposing all GHSA data in bulk
 TODO: do this same analysis against packages from other linux distros
 
 The GHSA repository advisories listed below have been found on the upstream GitHub repository, but are not listed Chainguard's Wolfi `*.advisories.yaml` file.
@@ -27,9 +27,9 @@ Which mentions:
 
 > Advisories are based on vulnerability information provided by Grype from Anchore.
 
-Many of the missing CVEs are also missing from Grype (as rich GitHub data at least, some of them exist in the NVD data but unlinked to any packages or GitHub repos).
+Many of the missing CVEs are also missing from Grype (as rich GHSA GitHub data at least, some of them exist as CVEs in the NVD data but are unlinked to any packages or GitHub repos).
 
-Grype (and many, many, other tools) use GitHub _global security advisory_ data from https://github.com/advisories (or via its [git repo](https://github.com/github/advisory-database) or its [GraphQL API](https://docs.github.com/en/rest/security-advisories/global-advisories?apiVersion=2022-11-28)). This does NOT include _repository_ advisories, which are only available via [a specific REST API, fetched per-repo](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28). If advisories do not list an packages do not have a [supported ecosystem](https://github.com/github/advisory-database?tab=readme-ov-file#supported-ecosystems) (golang, npm, etc), they do not become a "GitHub reviewed" advisory with rich data linking to the affected package. All NVD CVEs _are_ included, but this includes none of the rich data from the repository advisory, there isn't even any machine readable data linking back to the source GitHub repo, and CVEs for many repository advisories seem to be missing from this data entirely.
+Grype (and many, many, other tools) use GitHub _global security advisory_ data from https://github.com/advisories (often downloaded in bulk from its [git repo](https://github.com/github/advisory-database) or using its [GraphQL API](https://docs.github.com/en/rest/security-advisories/global-advisories?apiVersion=2022-11-28)). This data does NOT include _repository_ advisories, which are only available via [a specific REST API](https://docs.github.com/en/rest/security-advisories/repository-advisories?apiVersion=2022-11-28), which must be fetched individually per-repo. If advisories do not list an packages do not have a [supported ecosystem](https://github.com/github/advisory-database?tab=readme-ov-file#supported-ecosystems) (golang, npm, etc), they do not become a "GitHub reviewed" advisory with rich data linking to the affected package. NVD CVE data _is_ included, but this includes none of the rich data from the repository advisory, there isn't even any machine readable data linking back to the source GitHub repo, and the data is incomplete with many repository advisory CVEs missing entirely.
 
 ```sql echo id=missing_advisories
 -- TODO: make this code cleaner. Probably use another subquery to avoid repeated unnest()
@@ -38,7 +38,7 @@ select
     packages.package,
     packages.version,
     packages.repo,
-    -- Advisories have multiple identifiers, GHSA and CVE numbers. For each advisory's set of ids, check if the Wolfi data (all ids from the Wolfi package, flattened list) includes any of the ids.
+    -- Advisories have multiple identifiers: both GHSA and CVE numbers. For each advisory's set of ids, check if the Wolfi data (all ids from the Wolfi package, flattened list) includes any of the ids.
     unnest(list_filter(packages.github_advisories, github_advisory -> not list_has_any(github_advisory, flatten(wolfi_advisories.advisories))))[1] as ghsa,
     unnest(list_filter(packages.github_advisories, github_advisory -> not list_has_any(github_advisory, flatten(wolfi_advisories.advisories))))[2] as cve,
 from (
