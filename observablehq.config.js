@@ -25,4 +25,10 @@ export default {
   // root: "docs", // path to the source root for preview
   // output: "dist", // path to the output root for build
   // search: true, // activate search
+
+  // TODO, consider using .exe instead.
+  // .sh shells are invoked as `bash ...sh` not `./...sh`, this means that the shebang is ignored
+  interpreters: {
+    ".sh": ["bash"],
+  }
 };
