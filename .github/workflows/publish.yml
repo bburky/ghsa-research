@@ -24,10 +24,7 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build
-        # Needed to query GH API
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run build --debug
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
