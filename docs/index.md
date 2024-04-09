@@ -48,14 +48,16 @@ An example of a missing advisory against a Wolfi package:
 
 I don't know why Grype didn't detect this CVE against Helm, it's not a non-ecosystem package: the advisory lists a golang package name. Weirdly this CVE does appear in Wolfi advisories against _other_ packages dependent on Helm.
 
+Another example is the long list of [FreeRDP advisories](https://github.com/FreeRDP/FreeRDP/security). This is a C language application (not a supported GHSA ecosystem), which means these advisories cannot be easily download in bulk via the global advisory APIs and may explain why they are missing from Wolfi's data.
+
 #### Unpatched package
 
 I did notice a significant unpatched CVE in Minio:
 
 - Wolfi Minio [package was RELEASE.2023-10-25T06-33-25Z](https://github.com/wolfi-dev/os/blob/1a1133adf240f10dd716f8494b982bd69b4484e2/minio.yaml#L5)
 - CVE-2024-24747, [GHSA-xx8w-mq23-29g4](https://github.com/advisories/GHSA-xx8w-mq23-29g4) advisory affecting 20240131185645 and older 
-- Grype does detect the Minio golang module and version in Wolfi packages, but Minio's strange version numbering probably prevents detecting that the old version is affected.
-- Auto-updates [were disabled](https://github.com/wolfi-dev/os/blob/1a1133adf240f10dd716f8494b982bd69b4484e2/minio.yaml#L38-L39) on the Minio Wolfi package
+- Grype does detect the Minio golang module and version in Wolfi packages, but Minio's strange version numbering probably prevents detecting that the old version is affected by the CVE.
+- Auto-updates [were previously disabled](https://github.com/wolfi-dev/os/blob/1a1133adf240f10dd716f8494b982bd69b4484e2/minio.yaml#L38-L39) on the Minio Wolfi package
 - UPDATE: This has been fixed. [Mino was updated to 20240406](https://github.com/wolfi-dev/os/pull/16564).
 
 ### All data
