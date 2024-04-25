@@ -10,19 +10,19 @@ sql:
 
 # Untracked repository GHSA advisories: Chainguard Wolfi
 
-_Note: The broader issue of missing GHSA CVE data is **not** specific to Chainguard Wolfi or any other linux distribution. This is mostly a result of some hard to use GitHub APIs not exposing all GHSA data in bulk. However some advisories may be listed here for other reasons such as incorrect detection of dependencies._
+_Note: The broader issue of missing GHSA CVE data is **not** specific to Chainguard Wolfi or any other linux distribution. This is mostly a result of some hard to use GitHub APIs not exposing all GHSA data in bulk. However some advisories may be listed here for other reasons such as incorrect detection of package versions._
 
 TODO: do this same analysis against packages from other linux distros
 
-The [GHSA repository advisories](https://docs.github.com/en/code-security/security-advisories/working-with-repository-security-advisories/about-repository-security-advisories) listed below have been found on the upstream GitHub repository, but are not listed Chainguard's Wolfi `*.advisories.yaml` file.
+The [GHSA repository advisories](https://docs.github.com/en/code-security/security-advisories/working-with-repository-security-advisories/about-repository-security-advisories) listed below have been found on the upstream GitHub repository, but are not listed Chainguard's Wolfi [`*.advisories.yaml` files](https://github.com/wolfi-dev/advisories/).
 
-In most cases, the Wolfi package has actually been updated to a patched version unaffected by the CVE. This is because Wolfi is rolling release distro and auto updates most software to latest version, regardless of CVEs. The missing advisory is still an issue because users are not informed that their old version was affected by a CVE and they need to update to the latest version.
+In most cases, the Wolfi package has actually been updated to a patched version unaffected by the CVE. This is because Wolfi is a rolling release distro and auto-updates most software to latest version, regardless of CVEs. The missing advisory is still an issue because users are not informed that their old version was affected by a CVE and they need to update to the latest version.
 
 Version numbers aren't checked in this analysis. This is intentional as mentioned above, but if Wolfi never distributed a affected version affected by a CVE, they usually don't list the advisory. So some advisories may be incorrectly listed here that never affected a Wolfi package.
 
 Also, sometimes when packages have breaking changes, Wolfi creates a new package "stream" with the bumped version, duplicating the package. This may result in duplicate data here, and new GHSAs may be incorrectly shown against the old package. This is really just another case of not checking versions.
 
-You can compare manually this data at https://images.chainguard.dev/security/
+You can compare this data manually at https://images.chainguard.dev/security/
 
 Which mentions:
 
@@ -56,7 +56,7 @@ I did notice a significant unpatched CVE in Minio:
 
 - Wolfi Minio [package was RELEASE.2023-10-25T06-33-25Z](https://github.com/wolfi-dev/os/blob/1a1133adf240f10dd716f8494b982bd69b4484e2/minio.yaml#L5)
 - CVE-2024-24747, [GHSA-xx8w-mq23-29g4](https://github.com/advisories/GHSA-xx8w-mq23-29g4) advisory affecting 20240131185645 and older 
-- Grype does detect the Minio golang module and version in Wolfi packages, but Minio's strange version numbering probably prevents detecting that the old version is affected by the CVE.
+- Grype does detect the Minio golang module and version in the Wolfi package, but Minio's strange version numbering probably prevents detecting that the old version is affected by the CVE.
 - Auto-updates [were previously disabled](https://github.com/wolfi-dev/os/blob/1a1133adf240f10dd716f8494b982bd69b4484e2/minio.yaml#L38-L39) on the Minio Wolfi package
 - UPDATE: This has been fixed. [Mino was updated to 20240406](https://github.com/wolfi-dev/os/pull/16564).
 
@@ -76,11 +76,11 @@ from (
     select
         wolfi_packages.package as package,
         arbitrary(wolfi_packages.version) as version,
-        arbitrary(ghsa_advisories.repo) as repo,
+        ghsa_advisories.repo as repo,
         list(list_distinct([ghsa_advisories.cve_id, ghsa_advisories.ghsa_id])) as github_advisories,
     from ghsa_advisories
     join wolfi_packages on wolfi_packages.repo = ghsa_advisories.repo
-    group by wolfi_packages.package
+    group by wolfi_packages.package, ghsa_advisories.repo
 ) as packages
 join wolfi_advisories on packages.package = wolfi_advisories.package
 where list_filter(packages.github_advisories, github_advisory -> not list_has_any(github_advisory, flatten(wolfi_advisories.advisories))) != []

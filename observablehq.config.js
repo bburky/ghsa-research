@@ -29,9 +29,7 @@ export default {
   // output: "dist", // path to the output root for build
   // search: true, // activate search
 
-  // TODO, consider using .exe instead.
-  // .sh shells are invoked as `bash ...sh` not `./...sh`, this means that the shebang is ignored
   interpreters: {
-    ".sh": ["bash"],
+    ".sh": [], // treat .sh more like .exe: use the shebang line inside the script
   }
 };
